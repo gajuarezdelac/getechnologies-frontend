@@ -1,0 +1,257 @@
+<div class="container">
+  <nz-tabset>
+    <nz-tab nzTitle="Módulo de facturas">
+      <div class="site-page-header-ghost-wrapper">
+        <nz-page-header [nzGhost]="false">
+          <nz-page-header-title>Módulo de facturas</nz-page-header-title>
+          <nz-page-header-subtitle>Listado de facturas</nz-page-header-subtitle>
+          <nz-page-header-extra>
+            <nz-space>
+              <button *nzSpaceItem nz-button (click)="showCreateDrawerInvoice()">Crear factura</button>
+            </nz-space>
+          </nz-page-header-extra>
+          <nz-page-header-content>
+            <nz-table #basicTable1 [nzData]="invoicesDataTable" [nzLoading]="isLoadingGeneralI" >
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Monto</th>
+                  <th>Fecha creación</th>
+                  <th>Usuario</th>
+
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let data of basicTable1.data">
+                  <td>{{ data.id }}</td>
+                  <td>{{ data.monto }}</td>
+                  <td>{{ data.fechaCreacion | date:'mediumDate' }}</td>
+                  <th>{{data.persona.nombre}} {{data.persona.apellidoMaterno}} {{data.persona.apellidoPaterno}} ({{data.persona.identificacion}})</th>
+
+                  <td>
+                    <nz-space>
+
+
+                      <button *nzSpaceItem nz-button nzDanger nz-popconfirm
+                        nzPopconfirmTitle="¿Seguro de eliminar esta factura?" nzPopconfirmPlacement="bottom"
+                        (nzOnConfirm)="confirmDeleteInvoice(data)">
+                        Eliminar
+                      </button>
+
+                    </nz-space>
+                  </td>
+                </tr>
+              </tbody>
+            </nz-table>
+          </nz-page-header-content>
+        </nz-page-header>
+      </div>
+    </nz-tab>
+
+    <nz-tab nzTitle="Administración de personas">
+      <div class="site-page-header-ghost-wrapper">
+        <nz-page-header [nzGhost]="false">
+          <nz-page-header-title>Módulo de personas</nz-page-header-title>
+          <nz-page-header-subtitle>Listado de personas</nz-page-header-subtitle>
+          <nz-page-header-extra>
+            <nz-space>
+              <button *nzSpaceItem nz-button (click)="showCreateDrawerPerson()">Agregar persona</button>
+            </nz-space>
+          </nz-page-header-extra>
+          <nz-page-header-content>
+            <nz-table #basicTable2 [nzData]="personsDataTable" [nzLoading]="isLoadingGeneralP">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Nombre completo</th>
+                  <th>identificacion</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let data of basicTable2.data">
+                  <td>{{ data.id }}</td>
+                  <td>{{ data.nombre }} {{data.apellidoMaterno}} {{data.apellidoPaterno}}</td>
+                  <td>{{ data.identificacion }}</td>
+                  <td>
+                    <nz-space>
+                      <button *nzSpaceItem nz-button (click)="showEditDrawerPerson(data)">
+                        Editar
+                      </button>
+
+                      <button *nzSpaceItem nz-button nzDanger nz-popconfirm
+                        nzPopconfirmTitle="¿Seguro de eliminar a esta persona?" nzPopconfirmPlacement="bottom"
+                        (nzOnConfirm)="confirmDeletePerson(data)">
+                        Eliminar
+                      </button>
+
+                    </nz-space>
+                  </td>
+                </tr>
+              </tbody>
+            </nz-table>
+          </nz-page-header-content>
+        </nz-page-header>
+      </div>
+
+
+    </nz-tab>
+  </nz-tabset>
+</div>
+
+
+<nz-drawer [nzFooter]="FooterCP" [nzWidth]="400" [nzClosable]="false" [nzVisible]="visibleCreatePDrawer"
+  nzPlacement="right" nzTitle="Crear persona" (nzOnClose)="hideCreateDrawerPerson()">
+  <ng-container *nzDrawerContent>
+    <nz-spin [nzSpinning]="isLoadingCreateP" >
+      <form nz-form [formGroup]="createFormPerson" (ngSubmit)="submitCreateFormPerson()">
+        <nz-form-item>
+          <nz-form-control nzErrorTip="Campo requerido!">
+            <nz-form-label> Ingresa el nombre </nz-form-label>
+              <input type="text" nz-input formControlName="nombre" placeholder="Nombre de pila" />
+          </nz-form-control>
+        </nz-form-item>
+       
+  
+        <nz-form-item>
+          <nz-form-control nzErrorTip="Campo requerido!">
+            <nz-form-label> Ingresa el apellido paterno </nz-form-label>
+              <input type="text" nz-input formControlName="apellidoPaterno" placeholder="Apellido paterno" />
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item>
+          <nz-form-control nzErrorTip="Campo requerido!">
+            <nz-form-label> Ingresa el apellido materno </nz-form-label>
+              <input type="text" nz-input formControlName="apellidoMaterno" placeholder="Apellido materno" />
+          </nz-form-control>
+        </nz-form-item>
+  
+        <nz-form-item>
+          <nz-form-control nzErrorTip="Ingresa tu identificación correctamente!">
+            <nz-form-label> Ingresa tu identificación </nz-form-label>
+              <input type="text" nz-input formControlName="identificacion" placeholder="Ingresa la identificación" />
+          </nz-form-control>
+        </nz-form-item>
+      </form>
+    </nz-spin>
+ 
+
+
+  </ng-container>
+
+
+  <ng-template #FooterCP>
+    <nz-space>
+       <!-- [disabled]="isLoadingCreateDrawer" -->
+         <button *nzSpaceItem nz-button form="ngForm" class="button-blue" (click)="submitCreateFormPerson()">
+          Guardar
+        </button>
+
+      <button *nzSpaceItem class="button-red" nz-button (click)="hideCreateDrawerPerson()">
+        Cancelar
+      </button>
+
+   
+    </nz-space>
+  </ng-template>
+
+</nz-drawer>
+
+
+<nz-drawer [nzFooter]="FooterEP" [nzWidth]="400" [nzClosable]="false" [nzVisible]="visibleEditPDrawer"
+  nzPlacement="right" nzTitle="Editar persona" (nzOnClose)="hideeditDrawerPerson()">
+  <ng-container *nzDrawerContent>
+
+    <nz-spin [nzSpinning]="isLoadingCreateP" >
+      <form nz-form [formGroup]="editFormPerson" (ngSubmit)="submitEditFormPerson()">
+        <nz-form-item>
+          <nz-form-control nzErrorTip="Campo requerido!">
+            <nz-form-label> Ingresa el nombre </nz-form-label>
+              <input type="text" nz-input formControlName="nombre" [(ngModel)]="selectPerson && selectPerson.nombre" placeholder="Nombre de pila" />
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-control nzErrorTip="Campo requerido!">
+            <nz-form-label> Ingresa el apellido materno </nz-form-label>
+              <input type="text" nz-input formControlName="apellidoMaterno" [(ngModel)]="selectPerson && selectPerson.apellidoMaterno" placeholder="Apellido materno" />
+          </nz-form-control>
+        </nz-form-item>
+  
+        <nz-form-item>
+          <nz-form-control nzErrorTip="Campo requerido!">
+            <nz-form-label> Ingresa el apellido paterno </nz-form-label>
+              <input type="text" nz-input formControlName="apellidoPaterno" [(ngModel)]="selectPerson && selectPerson.apellidoPaterno" placeholder="Apellido paterno" />
+          </nz-form-control>
+        </nz-form-item>
+  
+        <nz-form-item>
+          <nz-form-control nzErrorTip="Ingresa tu identificación correctamente!">
+            <nz-form-label> Ingresa tu identificación </nz-form-label>
+              <input type="text" nz-input formControlName="identificacion"  [(ngModel)]="selectPerson && selectPerson.identificacion" placeholder="Ingresa la identificación" />
+          </nz-form-control>
+        </nz-form-item>
+      </form>
+    </nz-spin>
+ 
+
+  </ng-container>
+  <ng-template #FooterEP>
+    <nz-space>
+    
+
+      <!-- [disabled]="isLoadingCreateDrawer" -->
+      <button *nzSpaceItem nz-button form="ngForm" class="button-blue" (click)="submitEditFormPerson()">
+        Guardar
+      </button>
+
+      <button *nzSpaceItem nzDanger class="button-red" nz-button (click)="hideeditDrawerPerson()">
+        Cancelar
+      </button>
+    </nz-space>
+  </ng-template>
+</nz-drawer>
+
+
+
+<nz-drawer [nzFooter]="FooterCI" [nzWidth]="400" [nzClosable]="false" [nzVisible]="visibleCreateFDrawer"
+  nzPlacement="right" nzTitle="Crear factura" (nzOnClose)="hideDCreaterawerInvoice()">
+  <ng-container *nzDrawerContent>
+     
+    <nz-spin [nzSpinning]="isLoadingCreateF" >
+      <form nz-form [formGroup]="createFormInvoice" (ngSubmit)="submitCreateFormInvoice()">
+        <nz-form-item>
+          <nz-form-control nzErrorTip="Es necesario ingresar el monto!">
+            <nz-form-label> Ingresa el monto de la factura </nz-form-label>
+              <input type="number" nz-input formControlName="monto" placeholder="Monto de la factura" />
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-control nzErrorTip="Es necesario seleccionar una persona!">
+            <nz-form-label> Selecciona a la persona </nz-form-label>
+            <nz-select formControlName="persona" >
+              <nz-option *ngFor="let item of personsBySelect" [nzValue]="item.id" nzLabel="{{item.nombre}} {{item.apellidoMaterno}} {{item.apellidoPaterno}} - {{item.identificacion}}"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </form>
+    </nz-spin>
+  
+ 
+  </ng-container>
+  <ng-template #FooterCI>
+    <nz-space>
+        <!-- [disabled]="isLoadingCreateDrawer" -->
+        <button *nzSpaceItem nz-button  form="ngForm" class="button-blue" (click)="submitCreateFormInvoice()">
+          Crear factura
+        </button>
+
+      <button *nzSpaceItem nzDanger class="button-red" nz-button (click)="hideeditDrawerPerson()">
+        Cancelar
+      </button>
+
+    
+    </nz-space>
+  </ng-template>
+</nz-drawer>
